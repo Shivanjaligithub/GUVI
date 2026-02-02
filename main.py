@@ -1,13 +1,14 @@
-from fastapi import FastAPI, Header, HTTPException
+from fastapi import FastAPI, Header, HTTPException, Body
 from typing import Optional, Dict, Any
 
 app = FastAPI()
 
 VALID_API_KEY = "my_secret_key_123"
 
-@app.post("/honeypot")
+# Accept BOTH GET and POST
+@app.api_route("/honeypot", methods=["GET", "POST"])
 def honeypot(
-    payload: Dict[str, Any],
+    payload: Optional[Dict[str, Any]] = Body(default=None),
     x_api_key: Optional[str] = Header(None)
 ):
     if x_api_key != VALID_API_KEY:
@@ -16,5 +17,6 @@ def honeypot(
     return {
         "status": "active",
         "honeypot_ready": True,
-        "message": "Honeypot endpoint is operational"
+        "message": "Honeypot endpoint is operational",
+        "received_payload": payload
     }
